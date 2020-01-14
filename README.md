@@ -1,2 +1,0 @@
-# scatterbrain
-Created with CodeSandbox
