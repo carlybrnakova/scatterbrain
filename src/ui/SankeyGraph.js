@@ -39,7 +39,7 @@ export default props => {
   return (
     <>
       {data.links.length === 0 ? (
-        <div>Nothing to see here</div>
+        <div>Go start tracking activities!</div>
       ) : (
         <Sankey data={data} edit={editMode} />
       )}

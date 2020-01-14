@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import activities from "./activities";
+// import activities from "./activities";
 
 const Page = styled.div`
   padding-top: 50px;
@@ -67,13 +67,13 @@ export default class ActivitiesPage extends React.Component {
     return (
       <Page>
         <ActivitiesContainer>
-          {activities.map(a => (
+          {this.props.activities.map(a => (
             <Button
-              active={this.props.selectedButton === a}
-              key={a}
+              active={this.props.selectedButton === a.title}
+              key={a.title}
               onClick={this.onClick}
             >
-              {a}
+              {a.title}
             </Button>
           ))}
           <GoHomeButton onClick={this.props.homeClick}>
