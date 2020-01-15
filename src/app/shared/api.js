@@ -1,4 +1,4 @@
-const url = "https://nhuyb.sse.codesandbox.io/";
+const url = "https://nhuyb.sse.codesandbox.io";
 
 export default {
   /**
@@ -16,7 +16,7 @@ export default {
   /**
    * ACTIVITY LOG ENTRIES
    */
-  saveLogEntry: entry => {
+  createLogEntry: entry => {
     return postData(url + "log", entry).then(data => {
       console.log(data); // JSON data parsed by `response.json()` call
     });
