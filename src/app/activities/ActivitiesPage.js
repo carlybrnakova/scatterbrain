@@ -38,47 +38,40 @@ export default class ActivitiesPage extends React.Component {
 
   // TODO: clicking the active button
   onClick = e => {
-    // console.log("e", e.target.innerText);
     const newDate = new Date();
-    if (this.state.started !== null) {
-      const link = {
-        source: this.state.started.toTimeString(),
-        target: this.props.selectedButton,
-        value: Math.round(
-          (newDate.getTime() - this.state.started.getTime()) / 1000
-        )
-      };
-      console.log("link is now", link);
-
-      const node = {
-        id: this.state.started.toTimeString(),
-        name: this.state.started.toTimeString()
-      };
-      this.props.onChange(node, link);
-    }
 
     this.setState({
-      started: new Date()
+      started: newDate
     });
-    this.props.onButtonChange(e.target.innerText);
+    this.props.onActivityChange(
+      this.state.started,
+      newDate,
+      e.target.innerText
+    );
+  };
+
+  endDay = () => {
+    this.setState({ started: null });
+    this.props.homeClick();
   };
 
   render() {
+    console.log("activities List", this.props.activities);
     return (
       <Page>
         <ActivitiesContainer>
-          {this.props.activities.map(a => (
-            <Button
-              active={this.props.selectedButton === a.title}
-              key={a.title}
-              onClick={this.onClick}
-            >
-              {a.title}
-            </Button>
-          ))}
-          <GoHomeButton onClick={this.props.homeClick}>
-            Going home!
-          </GoHomeButton>
+          {this.props.activities.map(activity => {
+            return (
+              <Button
+                active={this.props.selectedButton === activity.title}
+                key={activity.title}
+                onClick={this.onClick}
+              >
+                {activity.title}
+              </Button>
+            );
+          })}
+          <GoHomeButton onClick={this.endDay}>Going home!</GoHomeButton>
         </ActivitiesContainer>
       </Page>
     );

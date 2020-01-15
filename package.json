@@ -2,13 +2,20 @@
   "name": "react-d3-sankey-chart",
   "version": "1.0.0",
   "description": "",
-  "keywords": ["sankey", "d3.js", "chart", "react", "hooks"],
-  "main": "src/ui/index.js",
+  "keywords": [
+    "sankey",
+    "d3.js",
+    "chart",
+    "react",
+    "hooks"
+  ],
+  "main": "src/app/index.js",
   "dependencies": {
     "@reach/router": "1.2.1",
     "d3": "5.15.0",
     "d3-sankey": "0.12.3",
     "react": "16.8.5",
+    "react-date-picker": "7.10.0",
     "react-dom": "16.8.5",
     "react-scripts": "2.1.8",
     "react-spring": "8.0.18",
@@ -22,5 +29,10 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

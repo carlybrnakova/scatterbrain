@@ -1,9 +1,11 @@
+const url = "https://nhuyb.sse.codesandbox.io/";
+
 export default {
   /**
    * ACTIVITY TYPES
    */
   getActivityTypes: () => {
-    return fetch("https://2fqq9.sse.codesandbox.io/activities")
+    return fetch(url + "/activities")
       .then(res => res.json())
       .then(types => {
         console.log("the activity types are", types);
@@ -15,11 +17,9 @@ export default {
    * ACTIVITY LOG ENTRIES
    */
   saveLogEntry: entry => {
-    return postData("https://2fqq9.sse.codesandbox.io/log", entry).then(
-      data => {
-        console.log(data); // JSON data parsed by `response.json()` call
-      }
-    );
+    return postData(url + "log", entry).then(data => {
+      console.log(data); // JSON data parsed by `response.json()` call
+    });
   }
 };
 
