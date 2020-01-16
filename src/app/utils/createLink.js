@@ -10,7 +10,7 @@
  */
 export default (startDate, endDate, activityTitle) => {
   return {
-    source: startDate.toTimeString(),
+    source: startDate.toString(),
     target: activityTitle,
     value: Math.round((endDate.getTime() - startDate.getTime()) / 1000)
   };

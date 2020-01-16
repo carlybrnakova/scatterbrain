@@ -7,7 +7,7 @@
  */
 export default startDate => {
   return {
-    id: startDate.toTimeString(),
-    name: startDate.toTimeString()
+    id: startDate.toString(),
+    name: startDate.toString()
   };
 };

@@ -91,7 +91,7 @@ const Sankey = props => {
     .sankey()
     .nodeAlign(d3.sankeyJustify)
     .nodeWidth(10)
-    .nodePadding(1)
+    .nodePadding(8)
     .nodeId(d => d.id)
     .nodeSort(nodeSortFunc)
     .extent([[0, 0], [size.width, size.height]]);

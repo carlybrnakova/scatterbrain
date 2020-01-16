@@ -17,24 +17,23 @@ export default {
    * ACTIVITY LOG ENTRIES
    */
   createLogEntry: entry => {
-    console.log("ENTRY----------", entry);
     return postData(url + "/log", entry).then(data => {
       console.log(data); // JSON data parsed by `response.json()` call
     });
   },
 
   insertLogs: logs => {
-    console.log("LOGSSSS--------", logs);
     return postData(url + "/logs", logs).then(data => {
       console.log("insert logs response", data);
     });
   },
 
-  getLogsForDay: (year, month, day) => {
-    return fetch(url + "/logs")
+  getLogsForDay: (year, month, day, tzOffset) => {
+    return fetch(
+      `${url}/logs?year=${year}&month=${month}&day=${day}&offset=${tzOffset}`
+    )
       .then(data => data.json())
       .then(logs => {
-        console.log("got the logs", logs);
         return logs;
       });
   },
@@ -43,7 +42,6 @@ export default {
     return fetch(url + "/logs")
       .then(data => data.json())
       .then(logs => {
-        console.log("got the logs", logs);
         return logs;
       });
   }
