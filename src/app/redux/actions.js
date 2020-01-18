@@ -30,6 +30,14 @@ export function changeSelectedDay(date) {
   };
 }
 
+export const CHANGE_SELECTED_MONTH = "CHANGE_SELECTED_MONTH";
+export function changeSelectedMonth(date) {
+  return {
+    type: CHANGE_SELECTED_MONTH,
+    date
+  };
+}
+
 export const ADD_NODE = "ADD_NODE";
 export function addNode(node) {
   return {
@@ -91,7 +99,7 @@ export function fetchActivities() {
       .then(json => {
         // We can dispatch many times!
         // Here, we update the app state with the results of the API call.
-        console.log("json", json);
+
         return dispatch(receiveActivities(json));
       });
   };
@@ -112,6 +120,40 @@ export function fetchDailyActivityLogs(date) {
       .then(logs => {
         console.log("logs", logs);
         return dispatch(receiveDailyActivities(date, logs));
+      });
+  };
+}
+
+export const REQUEST_MONTH_ACTIVITIES = "REQUEST_MONTH_ACTIVITIES";
+export function requestMonthlyActivities(date) {
+  return {
+    type: REQUEST_MONTH_ACTIVITIES,
+    date
+  };
+}
+
+export const RECEIVE_MONTH_ACTIVITIES = "RECEIVE_MONTH_ACTIVITIES";
+export function receiveMonthlyActivities(date, activityLogs) {
+  return {
+    type: RECEIVE_MONTH_ACTIVITIES,
+    date,
+    activityLogs
+  };
+}
+
+export function fetchMonthlyActivityLogs(date) {
+  return function(dispatch) {
+    dispatch(requestMonthlyActivities());
+
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    // const day = date.getDate();
+    const tzOffset = 0; // TODO
+    return fetch(`${url}/logs?year=${year}&month=${month}`)
+      .then(data => data.json())
+      .then(logs => {
+        console.log("logs", logs);
+        return dispatch(receiveMonthlyActivities(date, logs));
       });
   };
 }

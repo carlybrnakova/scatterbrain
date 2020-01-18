@@ -56,7 +56,6 @@ export default class ActivitiesPage extends React.Component {
   };
 
   render() {
-    console.log("activities List", this.props.activities);
     return (
       <Page>
         <ActivitiesContainer>

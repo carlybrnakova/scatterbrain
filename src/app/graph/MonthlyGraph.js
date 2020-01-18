@@ -17,13 +17,17 @@ export default props => {
         clearIcon={null}
         maxDetail="year"
       />
-      <GraphPage
-        onDateChange={props.onDateChange}
-        dateToShow={props.dateToShow}
-        nodes={props.nodes}
-        links={filterLinksForMonth()}
-        editMode={props.editMode}
-      />
+      {props.loading || !props.data ? (
+        <h1>waiting...</h1>
+      ) : (
+        <GraphPage
+          onDateChange={props.onDateChange}
+          dateToShow={props.dateToShow}
+          nodes={props.data.nodes.concat(props.activityNodes)}
+          links={props.data.links}
+          editMode={props.editMode}
+        />
+      )}
     </>
   );
 };

@@ -15,12 +15,15 @@ import { createLogger } from "redux-logger";
 import {
   fetchActivities,
   fetchDailyActivityLogs,
+  fetchMonthlyActivityLogs,
   changeActivity,
   addActivityLog,
-  changeSelectedDay
+  changeSelectedDay,
+  changeSelectedMonth
 } from "./redux/actions";
 import rootReducer from "./redux/reducers";
-import getKey from "./utils/getKey";
+import getDayKey from "./utils/getDayKey";
+import getMonthKey from "./utils/getMonthKey";
 
 const loggerMiddleware = createLogger();
 const rootStore = createStore(
@@ -37,9 +40,7 @@ class App extends React.Component {
     this.state = {
       nodes: [],
       links: [],
-      // selectedButton: null,
-      editMode: false,
-      dateToShow: new Date()
+      editMode: false
     };
   }
 
@@ -167,7 +168,7 @@ class App extends React.Component {
     this.props.changeSelectedDay(newDate);
 
     // get the new data to view... if we don't have it already
-    const key = getKey(newDate);
+    const key = getDayKey(newDate);
     if (!this.props.allDailyData[key]) {
       this.props.fetchDailyActivityLogs(newDate);
     }
@@ -223,11 +224,21 @@ class App extends React.Component {
     // });
   };
 
+  onMonthChange = newDate => {
+    this.props.changeSelectedMonth(newDate);
+
+    // get the new data to view... if we don't have it already
+    const key = getMonthKey(newDate);
+    if (!this.props.allMonthlyData[key]) {
+      this.props.fetchMonthlyActivityLogs(newDate);
+    }
+  };
+
   filterLinksForSelectedDay = () => {
-    const { dateToShow, links } = this.state;
-    const currentYear = dateToShow.getFullYear();
-    const currentDay = dateToShow.getDate();
-    const currentMonth = dateToShow.getMonth();
+    const { links } = this.state;
+    const currentYear = this.props.selectedDay.getFullYear();
+    const currentDay = this.props.selectedDay.getDate();
+    const currentMonth = this.props.selectedDay.getMonth();
 
     return links.filter(link => {
       const parsedDate = new Date(Date.parse(link.source));
@@ -240,10 +251,10 @@ class App extends React.Component {
   };
 
   filterNodesForSelectedDay = () => {
-    const { dateToShow, nodes } = this.state;
-    const currentYear = dateToShow.getFullYear();
-    const currentDay = dateToShow.getDate();
-    const currentMonth = dateToShow.getMonth();
+    const { nodes } = this.state;
+    const currentYear = this.props.selectedDay.getFullYear();
+    const currentDay = this.props.selectedDay.getDate();
+    const currentMonth = this.props.selectedDay.getMonth();
 
     return nodes.filter(node => {
       const parsedDate = new Date(Date.parse(node.name));
@@ -256,20 +267,12 @@ class App extends React.Component {
   };
 
   render() {
-    const {
-      nodes,
-      links,
-      // selectedButton,
-      editMode,
-      // activityTypes,
-      dateToShow
-    } = this.state;
+    const { nodes, editMode } = this.state;
 
     const handleGoingHomeForTheDay = () => {
       this.props.changeActivity(null);
     };
 
-    console.log("index props --------", this.props);
     return (
       <div className="App">
         <div>
@@ -292,16 +295,19 @@ class App extends React.Component {
             loading={this.props.loadingDailyActivities}
             path="graph"
             activityNodes={this.props.activityNodes}
-            data={this.props.allDailyData[getKey(this.props.selectedDay)]}
+            data={this.props.allDailyData[getDayKey(this.props.selectedDay)]}
             onDateChange={this.onDateChange}
             dateToShow={this.props.selectedDay}
           />
           <MonthlyGraph
+            loading={this.props.loadingMonthlyActivities}
             path="graph/monthly"
-            nodes={nodes}
-            links={this.filterLinksForSelectedDay()}
-            onDateChange={this.onDateChange}
-            dateToShow={dateToShow}
+            activityNodes={this.props.activityNodes}
+            data={
+              this.props.allMonthlyData[getMonthKey(this.props.selectedMonth)]
+            }
+            onDateChange={this.onMonthChange}
+            dateToShow={this.props.selectedMonth}
           />
         </Router>
       </div>
@@ -316,19 +322,22 @@ const mapStateToProps = (state /*, ownProps*/) => {
     activityNodes: state.activities.activityNodes,
     currentActivity: state.view.currentActivity,
     selectedDay: state.view.currentDate,
+    selectedMonth: state.view.currentMonth,
     allDailyData: state.daily,
-    loadingDailyActivities: state.daily.loadingDailyActivities
+    allMonthlyData: state.monthly,
+    loadingDailyActivities: state.daily.loadingDailyActivities,
+    loadingMonthlyActivities: state.daily.loadingMonthlyActivities
   };
 };
-
-// rootStore.dispatch(fetchActivities());
 
 const mapDispatchToProps = {
   changeActivity,
   fetchDailyActivityLogs,
+  fetchMonthlyActivityLogs,
   addActivityLog,
   fetchActivities,
-  changeSelectedDay
+  changeSelectedDay,
+  changeSelectedMonth
 };
 
 const RealApp = connect(

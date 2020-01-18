@@ -5,7 +5,7 @@ import {
 } from "./actions";
 import createNode from "../utils/createNode";
 import createLink from "../utils/createLink";
-import getKey from "../utils/getKey";
+import getDayKey from "../utils/getDayKey";
 
 const initialState = {
   loadingDailyActivities: false
@@ -46,7 +46,7 @@ export default function daily(state = initialState, action) {
 
       // if the date doesn't exist yet, create a new
       // entry for that date
-      const key = getKey(action.startDate);
+      const key = getDayKey(action.startDate);
       if (!state[key]) {
         return Object.assign({}, state, {
           [key]: {
@@ -85,7 +85,7 @@ export default function daily(state = initialState, action) {
       };
 
       return Object.assign({}, state, {
-        [getKey(action.date)]: activityLogObject,
+        [getDayKey(action.date)]: activityLogObject,
         loadingDailyActivities: false
       });
     default:
