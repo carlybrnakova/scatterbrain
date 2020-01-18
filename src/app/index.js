@@ -7,72 +7,97 @@ import MonthlyGraph from "./graph/MonthlyGraph";
 import api from "./utils/api";
 import createNode from "./utils/createNode";
 import createLink from "./utils/createLink";
+import { createStore, applyMiddleware } from "redux";
+// import activityReducer from "./redux/activityReducer";
+import { Provider, connect } from "react-redux";
+import thunkMiddleware from "redux-thunk";
+import { createLogger } from "redux-logger";
+import {
+  fetchActivities,
+  fetchDailyActivityLogs,
+  changeActivity,
+  addActivityLog,
+  changeSelectedDay
+} from "./redux/actions";
+import rootReducer from "./redux/reducers";
+import getKey from "./utils/getKey";
+
+const loggerMiddleware = createLogger();
+const rootStore = createStore(
+  rootReducer,
+  applyMiddleware(
+    thunkMiddleware, // lets us dispatch() functions
+    loggerMiddleware // neat middleware that logs actions
+  )
+);
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activityTypes: [],
       nodes: [],
       links: [],
-      selectedButton: null,
+      // selectedButton: null,
       editMode: false,
       dateToShow: new Date()
     };
   }
 
   componentDidMount() {
-    api.getActivityTypes().then(types => {
-      // createTestDataLogs(types);
+    // const { dispatch } = this.props
+    this.props.fetchActivities();
 
-      const nodes = types.map(activity => ({
-        id: activity.title,
-        name: activity.title
-      }));
+    // api.getActivityTypes().then(types => {
+    // createTestDataLogs(types);
 
-      // const d = new Date();
-      // console.log("d is", d);
-      const theDate = new Date();
-      // console.log(
-      //   "the date is",
-      //   theDate.getFullYear(),
-      //   theDate.getMonth(),
-      //   theDate.getDate(),
-      //   theDate.getTimezoneOffset()
-      // );
-      return api
-        .getLogsForDay(
-          theDate.getFullYear(),
-          theDate.getMonth(),
-          theDate.getDate(),
-          theDate.getTimezoneOffset()
-        )
-        .then(results => {
-          console.log("results", results);
+    // const nodes = types.map(activity => ({
+    //   id: activity.title,
+    //   name: activity.title
+    // }));
 
-          // append all the logs to the nodes
-          const n = nodes.concat(
-            results.map(r => createNode(new Date(r.startDate)))
-          );
+    // // const d = new Date();
+    // // console.log("d is", d);
+    // const theDate = new Date();
+    // // console.log(
+    // //   "the date is",
+    // //   theDate.getFullYear(),
+    // //   theDate.getMonth(),
+    // //   theDate.getDate(),
+    // //   theDate.getTimezoneOffset()
+    // // );
+    //   return api
+    //     .getLogsForDay(
+    //       theDate.getFullYear(),
+    //       theDate.getMonth(),
+    //       theDate.getDate(),
+    //       theDate.getTimezoneOffset()
+    //     )
+    //     .then(results => {
+    //       console.log("results", results);
 
-          // create links for all the logs
-          const links = results.map(r =>
-            createLink(
-              new Date(Date.parse(r.startDate)),
-              new Date(Date.parse(r.endDate)),
-              r.activity
-            )
-          );
-          // console.log("links", links);
+    //       // append all the logs to the nodes
+    //       const n = nodes.concat(
+    //         results.map(r => createNode(new Date(r.startDate)))
+    //       );
 
-          this.setState({
-            activityTypes: types,
-            nodes: n,
-            links,
-            dateToShow: theDate
-          });
-        });
-    });
+    //       // create links for all the logs
+    //       const links = results.map(r =>
+    //         createLink(
+    //           new Date(Date.parse(r.startDate)),
+    //           new Date(Date.parse(r.endDate)),
+    //           r.activity
+    //         )
+    //       );
+    //       // console.log("links", links);
+
+    //       this.setState({
+    //         activityTypes: types,
+    //         nodes: n,
+    //         links,
+    //         dateToShow: theDate
+    //       });
+    //     });
+    // });
 
     const createTestDataLogs = types => {
       // Jan 13
@@ -115,78 +140,87 @@ class App extends React.Component {
 
   onActivityChange = (startDate, endDate, newActivityType) => {
     if (startDate !== null) {
-      const node = createNode(startDate);
-      const link = createLink(startDate, endDate, newActivityType);
+      //   const node = createNode(startDate);
+      //   const link = createLink(startDate, endDate, newActivityType);
 
-      this.setState({ nodes: this.state.nodes.concat(node) });
-      this.setState({ links: this.state.links.concat(link) });
+      //   this.setState({ nodes: this.state.nodes.concat(node) });
+      //   this.setState({ links: this.state.links.concat(link) });
 
-      api.createLogEntry({
-        // startTimeMs: startDate.getMilliseconds(),
-        // startTimeStr: startDate.toString(),
-        // endTimeMs: endDate.getMilliseconds(),
-        // endTimeStr: endDate.toString(),
-        startDate,
-        endDate,
-        magnitudeSec: node.value,
-        activity: link.target
-      });
+      //   api.createLogEntry({
+      //     // startTimeMs: startDate.getMilliseconds(),
+      //     // startTimeStr: startDate.toString(),
+      //     // endTimeMs: endDate.getMilliseconds(),
+      //     // endTimeStr: endDate.toString(),
+      //     startDate,
+      //     endDate,
+      //     magnitudeSec: node.value,
+      //     activity: link.target
+      //   });
+      this.props.addActivityLog(startDate, endDate, newActivityType);
     }
 
-    this.setState({ selectedButton: newActivityType });
+    this.props.changeActivity(newActivityType);
   };
 
   onDateChange = newDate => {
-    this.setState({ dateToShow: newDate }, () => {
-      const { nodes, links } = this.state;
-      if (
-        this.filterLinksForSelectedDay().length > 0 &&
-        this.filterNodesForSelectedDay().length > 0
-      ) {
-        return;
-      }
+    // notify the store that the date has changed
+    this.props.changeSelectedDay(newDate);
 
-      // assume if we need one, we need both
-      api
-        .getLogsForDay(
-          newDate.getFullYear(),
-          newDate.getMonth(),
-          newDate.getDate(),
-          newDate.getTimezoneOffset()
-        )
-        .then(results => {
-          // append all the logs to the nodes
-          const n = nodes.concat(
-            results.map(r => createNode(new Date(r.startDate)))
-          );
+    // get the new data to view... if we don't have it already
+    const key = getKey(newDate);
+    if (!this.props.allDailyData[key]) {
+      this.props.fetchDailyActivityLogs(newDate);
+    }
+    // this.setState({ dateToShow: newDate }, () => {
+    //   const { nodes, links } = this.state;
+    //   if (
+    //     this.filterLinksForSelectedDay().length > 0 &&
+    //     this.filterNodesForSelectedDay().length > 0
+    //   ) {
+    //     return;
+    //   }
 
-          // create links for all the logs
-          const l = links.concat(
-            results.map(r => {
-              // console.log("r is", r);
-              // console.log(
-              //   "and link is",
-              //   createLink(
-              //     new Date(r.startDate),
-              //     new Date(r.endDate),
-              //     r.activity
-              //   )
-              // );
+    // assume if we need one, we need both
+    // api
+    //   .getLogsForDay(
+    //     newDate.getFullYear(),
+    //     newDate.getMonth(),
+    //     newDate.getDate(),
+    //     newDate.getTimezoneOffset()
+    //   )
+    //   .then(results => {
+    //     // append all the logs to the nodes
+    //     const n = nodes.concat(
+    //       results.map(r => createNode(new Date(r.startDate)))
+    //     );
 
-              return createLink(
-                new Date(r.startDate),
-                new Date(r.endDate),
-                r.activity
-              );
-            })
-          );
+    //     // create links for all the logs
+    //     const l = links.concat(
+    //       results.map(r => {
+    //         // console.log("r is", r);
+    //         // console.log(
+    //         //   "and link is",
+    //         //   createLink(
+    //         //     new Date(r.startDate),
+    //         //     new Date(r.endDate),
+    //         //     r.activity
+    //         //   )
+    //         // );
 
-          this.setState({
-            nodes: n,
-            links: l
-          });
-        });
-    });
+    //         return createLink(
+    //           new Date(r.startDate),
+    //           new Date(r.endDate),
+    //           r.activity
+    //         );
+    //       })
+    //     );
+
+    //     this.setState({
+    //       nodes: n,
+    //       links: l
+    //     });
+    //   });
+    // });
   };
 
   filterLinksForSelectedDay = () => {
@@ -225,16 +259,17 @@ class App extends React.Component {
     const {
       nodes,
       links,
-      selectedButton,
+      // selectedButton,
       editMode,
-      activityTypes,
+      // activityTypes,
       dateToShow
     } = this.state;
 
     const handleGoingHomeForTheDay = () => {
-      this.setState({ selectedButton: null });
+      this.props.changeActivity(null);
     };
 
+    console.log("index props --------", this.props);
     return (
       <div className="App">
         <div>
@@ -247,18 +282,19 @@ class App extends React.Component {
         </div>
         <Router>
           <ActivitesPage
-            activities={activityTypes}
+            activities={this.props.activityTypes}
             path="activities"
             onActivityChange={this.onActivityChange}
-            selectedButton={selectedButton}
+            selectedButton={this.props.currentActivity}
             homeClick={handleGoingHomeForTheDay}
           />
           <DailyGraph
+            loading={this.props.loadingDailyActivities}
             path="graph"
-            nodes={nodes}
-            links={this.filterLinksForSelectedDay()}
+            activityNodes={this.props.activityNodes}
+            data={this.props.allDailyData[getKey(this.props.selectedDay)]}
             onDateChange={this.onDateChange}
-            dateToShow={dateToShow}
+            dateToShow={this.props.selectedDay}
           />
           <MonthlyGraph
             path="graph/monthly"
@@ -273,5 +309,37 @@ class App extends React.Component {
   }
 }
 
+const mapStateToProps = (state /*, ownProps*/) => {
+  return {
+    activityTypes: state.activities.activityTypes,
+    loadingActivities: state.activities.loadingActivities,
+    activityNodes: state.activities.activityNodes,
+    currentActivity: state.view.currentActivity,
+    selectedDay: state.view.currentDate,
+    allDailyData: state.daily,
+    loadingDailyActivities: state.daily.loadingDailyActivities
+  };
+};
+
+// rootStore.dispatch(fetchActivities());
+
+const mapDispatchToProps = {
+  changeActivity,
+  fetchDailyActivityLogs,
+  addActivityLog,
+  fetchActivities,
+  changeSelectedDay
+};
+
+const RealApp = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
+
 const rootElement = document.getElementById("root");
-ReactDOM.render(<App />, rootElement);
+ReactDOM.render(
+  <Provider store={rootStore}>
+    <RealApp />
+  </Provider>,
+  rootElement
+);

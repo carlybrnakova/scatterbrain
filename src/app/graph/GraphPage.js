@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import SankeyGraph from "./SankeyGraph";
-import DatePicker from "react-date-picker";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -15,11 +14,6 @@ const Container = styled.div`
 export default props => {
   return (
     <Container>
-      <DatePicker
-        onChange={props.onDateChange}
-        value={props.dateToShow}
-        clearIcon={null}
-      />
       {props.links.length === 0 ? (
         <div>Go start tracking activities!</div>
       ) : (
